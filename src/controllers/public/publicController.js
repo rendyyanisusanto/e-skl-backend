@@ -1,7 +1,15 @@
 const publicSvc = require('../../services/publicService');
+const profileSvc = require('../../services/schoolProfileService');
 const { successResponse, errorResponse } = require('../../utils/response');
 const fs = require('fs');
 const path = require('path');
+
+exports.getSchoolProfile = async (req, res, next) => {
+  try {
+    const d = await profileSvc.get();
+    res.json(successResponse('Profil sekolah.', d));
+  } catch (e) { next(e); }
+};
 
 exports.checkSkl = async (req, res, next) => {
   try {
