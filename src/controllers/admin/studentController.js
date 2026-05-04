@@ -25,6 +25,14 @@ exports.updateGraduationResult = async (req, res, next) => { try { const d = awa
 
 exports.getRequirements = async (req, res, next) => { try { const d = await reqTypeSvc.getByStudent(req.params.id); res.json(successResponse('Syarat siswa.', d)); } catch (e) { next(e); } };
 exports.updateRequirement = async (req, res, next) => { try { const d = await reqTypeSvc.updateRequirement(req.params.id, req.params.requirementTypeId, req.body, req.user.id); res.json(successResponse('Syarat diperbarui.', d)); } catch (e) { next(e); } };
+exports.bulkUpdateRequirements = async (req, res, next) => {
+  try {
+    const { updates } = req.body;
+    if (!Array.isArray(updates)) return res.status(400).json(errorResponse('Data updates harus berupa array.'));
+    const d = await reqTypeSvc.bulkUpdate(updates, req.user.id);
+    res.json(successResponse('Syarat massal diperbarui.', d));
+  } catch (e) { next(e); }
+};
 exports.generateRequirements = async (req, res, next) => { try { const d = await reqTypeSvc.generateRequirements(req.params.id); res.json(successResponse('Syarat berhasil digenerate.', d)); } catch (e) { next(e); } };
 
 exports.uploadSkl = async (req, res, next) => {

@@ -15,6 +15,7 @@ router.delete('/:id', ctrl.destroy);
 router.put('/:id/graduation-result', ctrl.updateGraduationResult);
 
 router.get('/:id/requirements', ctrl.getRequirements);
+router.put('/requirements/bulk', ctrl.bulkUpdateRequirements);
 router.put('/:id/requirements/:requirementTypeId', ctrl.updateRequirement);
 router.post('/:id/requirements/generate', ctrl.generateRequirements);
 

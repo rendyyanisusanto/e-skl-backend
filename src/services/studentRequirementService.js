@@ -28,4 +28,23 @@ const generateRequirements = async (studentId, userId) => {
   return getByStudent(studentId);
 };
 
-module.exports = { getByStudent, updateRequirement, generateRequirements };
+const bulkUpdate = async (updates, userId) => {
+  // updates is an array of { studentId, requirementTypeId, status, notes }
+  const results = [];
+  for (const update of updates) {
+    let req = await StudentRequirement.findOne({ 
+      where: { studentId: update.studentId, requirementTypeId: update.requirementTypeId } 
+    });
+    if (req) {
+      const updateData = { status: update.status, verifiedBy: userId };
+      if (update.notes !== undefined) updateData.notes = update.notes;
+      if (['COMPLETED', 'WAIVED'].includes(update.status)) updateData.completedAt = new Date();
+      else updateData.completedAt = null;
+      await req.update(updateData);
+      results.push(req);
+    }
+  }
+  return results;
+};
+
+module.exports = { getByStudent, updateRequirement, generateRequirements, bulkUpdate };

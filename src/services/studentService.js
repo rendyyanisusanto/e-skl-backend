@@ -4,7 +4,7 @@ const crypto = require('crypto');
 
 const generateAccessToken = () => crypto.randomBytes(32).toString('hex');
 
-const getAll = async ({ graduation_period_id, class_id, major_id, status, search, page = 1, limit = 20 }) => {
+const getAll = async ({ graduation_period_id, class_id, major_id, status, search, page = 1, limit = 20, include_requirements = false }) => {
   const where = { isActive: true };
   if (graduation_period_id) where.graduationPeriodId = graduation_period_id;
   if (class_id) where.classId = class_id;
@@ -21,19 +21,34 @@ const getAll = async ({ graduation_period_id, class_id, major_id, status, search
     { model: Class, as: 'class', attributes: ['id', 'name'] },
     { model: Major, as: 'major', attributes: ['id', 'code', 'name'] },
     { model: GraduationResult, as: 'graduationResult', attributes: ['status'], ...(status ? { where: { status } } : {}) },
-    { model: SklDocument, as: 'sklDocument', attributes: ['id', 'status', 'verificationCode'] },
+    { model: SklDocument, as: 'sklDocument', attributes: ['id', 'status', 'verificationCode', 'originalFileName'] },
   ];
 
-  const offset = (parseInt(page) - 1) * parseInt(limit);
-  const { count, rows } = await Student.findAndCountAll({
+  if (String(include_requirements) === 'true') {
+    include.push({
+      model: StudentRequirement,
+      as: 'requirements',
+      include: [{ model: RequirementType, as: 'requirementType' }]
+    });
+  }
+
+  const parsedLimit = limit === 'all' ? null : parseInt(limit);
+  const offset = limit === 'all' ? 0 : (parseInt(page) - 1) * parsedLimit;
+  
+  const options = {
     where,
     include,
-    limit: parseInt(limit),
-    offset,
     order: [['name', 'ASC']],
     distinct: true,
-  });
-  return { total: count, page: parseInt(page), limit: parseInt(limit), data: rows };
+  };
+  
+  if (parsedLimit !== null) {
+    options.limit = parsedLimit;
+    options.offset = offset;
+  }
+
+  const { count, rows } = await Student.findAndCountAll(options);
+  return { total: count, page: limit === 'all' ? 1 : parseInt(page), limit: limit === 'all' ? count : parsedLimit, data: rows };
 };
 
 const getById = async (id) => {
