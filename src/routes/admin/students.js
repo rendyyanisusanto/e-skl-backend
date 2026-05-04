@@ -12,6 +12,7 @@ router.get('/:id', ctrl.show);
 router.put('/:id', ctrl.update);
 router.delete('/:id', ctrl.destroy);
 
+router.put('/graduation-results/bulk', ctrl.bulkUpdateGraduationResults);
 router.put('/:id/graduation-result', ctrl.updateGraduationResult);
 
 router.get('/:id/requirements', ctrl.getRequirements);

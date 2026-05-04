@@ -22,6 +22,14 @@ exports.import = async (req, res, next) => {
 };
 
 exports.updateGraduationResult = async (req, res, next) => { try { const d = await resultSvc.updateResult(req.params.id, req.body, req.user.id); res.json(successResponse('Status kelulusan diperbarui.', d)); } catch (e) { next(e); } };
+exports.bulkUpdateGraduationResults = async (req, res, next) => {
+  try {
+    const { updates } = req.body;
+    if (!Array.isArray(updates)) return res.status(400).json(errorResponse('Data updates harus berupa array.'));
+    const d = await resultSvc.bulkUpdateResults(updates, req.user.id);
+    res.json(successResponse('Status kelulusan massal diperbarui.', d));
+  } catch (e) { next(e); }
+};
 
 exports.getRequirements = async (req, res, next) => { try { const d = await reqTypeSvc.getByStudent(req.params.id); res.json(successResponse('Syarat siswa.', d)); } catch (e) { next(e); } };
 exports.updateRequirement = async (req, res, next) => { try { const d = await reqTypeSvc.updateRequirement(req.params.id, req.params.requirementTypeId, req.body, req.user.id); res.json(successResponse('Syarat diperbarui.', d)); } catch (e) { next(e); } };
