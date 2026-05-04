@@ -48,7 +48,36 @@ const getById = async (id) => {
     ],
   });
   if (!s) throw { status: 404, message: 'Siswa tidak ditemukan.' };
-  return s;
+
+  const nextStudent = await Student.findOne({
+    where: {
+      isActive: true,
+      [Op.or]: [
+        { name: { [Op.gt]: s.name } },
+        { name: s.name, id: { [Op.gt]: s.id } }
+      ]
+    },
+    order: [['name', 'ASC'], ['id', 'ASC']],
+    attributes: ['id']
+  });
+
+  const prevStudent = await Student.findOne({
+    where: {
+      isActive: true,
+      [Op.or]: [
+        { name: { [Op.lt]: s.name } },
+        { name: s.name, id: { [Op.lt]: s.id } }
+      ]
+    },
+    order: [['name', 'DESC'], ['id', 'DESC']],
+    attributes: ['id']
+  });
+
+  const data = s.toJSON();
+  data.nextStudentId = nextStudent ? nextStudent.id : null;
+  data.prevStudentId = prevStudent ? prevStudent.id : null;
+
+  return data;
 };
 
 const create = async (data) => {
