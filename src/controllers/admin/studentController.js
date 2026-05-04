@@ -14,9 +14,9 @@ exports.destroy = async (req, res, next) => { try { await studentSvc.deactivate(
 exports.import = async (req, res, next) => {
   try {
     if (!req.file) return res.status(400).json(errorResponse('File Excel wajib diupload.'));
-    const { graduation_period_id } = req.body;
+    const { graduation_period_id, class_id, major_id } = req.body;
     if (!graduation_period_id) return res.status(400).json(errorResponse('graduation_period_id wajib diisi.'));
-    const result = await importSvc.processImport(req.file.path, req.file.originalname, graduation_period_id, req.user.id);
+    const result = await importSvc.processImport(req.file.path, req.file.originalname, graduation_period_id, class_id, major_id, req.user.id);
     res.json(successResponse('Import selesai.', result));
   } catch (e) { next(e); }
 };
